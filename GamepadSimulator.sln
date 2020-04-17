@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30002.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamepadSimulator", "GamepadSimulator\GamepadSimulator.csproj", "{688BC3B2-9572-4786-947D-B80B35B60B97}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "GamePad", "GamePad\GamePad.vdproj", "{EA0CEC56-81EC-4C09-9E10-CF4FC7D9E322}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{688BC3B2-9572-4786-947D-B80B35B60B97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{688BC3B2-9572-4786-947D-B80B35B60B97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{688BC3B2-9572-4786-947D-B80B35B60B97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{688BC3B2-9572-4786-947D-B80B35B60B97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA0CEC56-81EC-4C09-9E10-CF4FC7D9E322}.Debug|Any CPU.ActiveCfg = Debug
+		{EA0CEC56-81EC-4C09-9E10-CF4FC7D9E322}.Release|Any CPU.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5F4D12A4-8724-4237-84E4-52371E952DF5}
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+EndGlobal
