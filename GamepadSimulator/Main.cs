@@ -74,6 +74,7 @@ namespace GamepadSimulator
                     {
                         try
                         {
+                            received = new byte[200];
                             stream.Read(received, 0, received.Length);
                             String rec = Encoding.UTF8.GetString(received);
                             //Thread t = new Thread(new ParameterizedThreadStart(Press.run));

@@ -12,7 +12,7 @@ namespace GamepadSimulator
     {
         public BTmsg()
         {
-            BluetoothRadio radio = BluetoothRadio.PrimaryRadio;
+            //BluetoothRadio radio = BluetoothRadio.PrimaryRadio;
 
         }
     }
