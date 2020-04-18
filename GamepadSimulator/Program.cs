@@ -13,7 +13,7 @@ namespace GamepadSimulator
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Press.init();
+            Press.Init();
             Application.Run(new MainForm());
         }
     }

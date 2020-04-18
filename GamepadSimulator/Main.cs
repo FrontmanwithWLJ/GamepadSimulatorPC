@@ -26,7 +26,6 @@ namespace GamepadSimulator
         public MainForm()
         {
             InitializeComponent();
-            //new ReceiveData();
             Init();
         }
 
@@ -44,48 +43,61 @@ namespace GamepadSimulator
         {
             //此服务同一时间只接受一个客户端的请求 1对1
             NetworkStream stream;
-            byte[] received = new byte[200];
+            byte[] received;
             while (!ClientConnected)
             {
+                received = new byte[200];
                 conn = bluetoothListener.AcceptBluetoothClient();//等待客户端连接
                 stream = conn.GetStream();
                 Msg("客户端上线");
-
+                DeviceInfo("未知");
                 //首次连接等待客户端发送连接指令
-                stream.Read(received,0,received.Length);
-                stream.Flush();
+                stream.Read(received, 0, received.Length);
                 String tmp = Encoding.UTF8.GetString(received);
                 String str = "GamePadAndroid";
+                tmp = tmp.Substring(0, 14);
                 Msg(tmp);
-                if (tmp.Substring(0,14) != str) {
+                if (tmp != str)
+                {
+                    RunLog.Text = "未收到客户端对接指令或已断开连接";
                     if (stream != null) stream.Close();
                     if (conn != null) conn.Close();
                     continue;
                 }
                 else
                 {
+                    DeviceInfo(tmp);
                     //收到正确指令，发送确认报文
                     byte[] sent = Encoding.UTF8.GetBytes("GamePadPC");
                     stream.Write(sent, 0, sent.Length);
                     //stream.Flush();
-                    Msg("connected");
+                    Msg("已连接");
                     ClientConnected = true;
                     while (true)
                     {
                         try
                         {
+                            //这一段基本没用，断开连接了也判断不出来
+                            /**if (!conn.Connected || !stream.CanRead || !stream.CanWrite)
+                                throw new IOException("client disconnect");*/
                             received = new byte[200];
                             stream.Read(received, 0, received.Length);
                             String rec = Encoding.UTF8.GetString(received);
-                            //Thread t = new Thread(new ParameterizedThreadStart(Press.run));
-                            //t.Start(rec);
-                            Press.run(rec);
+                            //客户端断开连接后会导致在缓冲区一直读空数据"\0"
+                            if(rec.Substring(0,1) == "\0") throw new IOException("client disconnect");
+                            //todo 这里执行按键操作，后期用队列实现
+                            if (running)
+                                Press.Run(rec);
                             Msg(rec);
                         }
                         catch (IOException)
                         {
                             Msg("客户端断开连接");
+                            DeviceInfo("无连接");
                             ClientConnected = false;
+                            stream.Close();
+                            conn.Close();
+                            break;
                         }
                     }
                 }
@@ -93,34 +105,77 @@ namespace GamepadSimulator
         }
 
         private void RunSimulator_Click(object sender, EventArgs e)
-        { 
+        {
+            Run();
+        }
+        
+        private void Run()
+        {
             if (!running)
             {
+                if (!ClientConnected)
+                {
+                    RunLog.Text = "无设备连接";
+                    return;
+                }
                 running = true;
                 RunSimulator.Text = "禁用";
+                RunLog.Text = "已启用";
+                //屏蔽启用按钮
+                启用ToolStripMenuItem.Enabled = false;
+                禁用ToolStripMenuItem.Enabled = true;
+                notifyIcon1.ShowBalloonTip(0, "提示", "手柄模拟器已启用", ToolTipIcon.None);
             }
             else
             {
                 running = false;
                 RunSimulator.Text = "启用";
+                RunLog.Text = "已禁用";
+                //屏蔽禁用按钮
+                启用ToolStripMenuItem.Enabled = true;
+                禁用ToolStripMenuItem.Enabled = false;
+                notifyIcon1.ShowBalloonTip(0, "提示", "手柄模拟器已禁用", ToolTipIcon.None);
             }
         }
 
-        private void MainForm_SizeChanged(object sender, EventArgs e) 
-        {
-            //按下最小化按钮
-            if (WindowState == FormWindowState.Minimized)
+        protected override void WndProc(ref Message m)
+        { 
+            int WM_SYSCOMMAND = 0x112;
+            int SC_MINIMIZE = 0xF020;
+            if (m.Msg == WM_SYSCOMMAND)
             {
-                //隐藏任务栏图标
-                this.ShowInTaskbar = false;
-                notifyIcon1.Visible = true;
-                notifyIcon1.ShowBalloonTip(0, "提示", "进入托盘模式运行", ToolTipIcon.None);
+                if (m.WParam.ToInt32() == SC_MINIMIZE) //是否点击最小化
+                {
+                    //这里写操作代码
+                    //this.Visible = false; //隐藏窗体
+                    WindowState = FormWindowState.Minimized;
+                    this.ShowInTaskbar = false;
+                    notifyIcon1.Visible = true;
+                    notifyIcon1.ShowBalloonTip(0, "提示", "进入托盘模式运行", ToolTipIcon.None);
+                    return;
+                }
             }
+            //调用父类的方法
+            base.WndProc(ref m);
+        }
+
+        private void DeviceInfo(String info)
+        {
+            Task task = new Task(() =>
+            {
+                MethodInvoker methodInvoker = new MethodInvoker(() =>
+                {
+                    SelectedDevice.Text = info;
+                });
+                this.BeginInvoke(methodInvoker);
+            });
+            task.Start();
         }
 
         private void Msg(String msg)
         {
-            Task task = new Task(() => {
+            Task task = new Task(() =>
+            {
                 MethodInvoker mi = new MethodInvoker(() =>
                 {
                     RunLog.Text = msg;
@@ -133,7 +188,7 @@ namespace GamepadSimulator
         //双击托盘图标还原窗口
         private void NotifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left&&WindowState == FormWindowState.Minimized)
+            if (e.Button == MouseButtons.Left && WindowState == FormWindowState.Minimized)
             {
                 //还原窗体显示 
                 WindowState = FormWindowState.Normal;
@@ -146,25 +201,14 @@ namespace GamepadSimulator
             }
         }
 
-        /*
-        * 对Encoding.UTF8.GetString()，进行处理，
-        * 这个方法返回的字符串空位全部都是\0,判等有问题，可能还占内存
-        */
-        private String GetString(byte[] bytes)
+        private void 启用ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            String str = "";
-            String tmp = Encoding.UTF8.GetString(bytes);
-            for (int i = 0; i < tmp.Length; i++)
-            {
-                String t = tmp.Substring(i, 1);
-                if (t == "\0")
-                    break;
-                else
-                {
-                    str += t;
-                }
-            }
-            return str+"\0";
+            Run();
+        }
+
+        private void 禁用ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Run();
         }
     }
 }

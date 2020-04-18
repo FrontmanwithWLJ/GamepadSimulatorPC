@@ -13,6 +13,7 @@ using System.Net.Sockets;
 
 namespace GamepadSimulator
 {
+    //这玩意没写好，不能用
     class ReceiveData
     {
         private BluetoothListener bluetoothListener = null;
