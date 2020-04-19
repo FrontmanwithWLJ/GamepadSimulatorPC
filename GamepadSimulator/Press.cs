@@ -109,7 +109,7 @@ namespace GamepadSimulator
 
         //向指定窗口发送消息
         [DllImport("user32.dll")]
-        public static extern long SendMessage(long hwnd,long wMsg,long wPraram,object lParam);
+        public static extern long SendMessage(long hwnd, long wMsg, long wPraram, object lParam);
 
 
         /**
@@ -119,9 +119,10 @@ namespace GamepadSimulator
         {
             String str = args.ToString();
             KeyInfo keyInfo = GetKey(str);
+            if (keyInfo.key == "\0") return;//解析出错
             if (!keyInfo.pressed)//如果是释放按键的指令则直接执行
             {
-                keyEvent[keyInfo.key] --;//减1,通知线程结束
+                keyEvent[keyInfo.key]--;//减1,通知线程结束
                 //info.pressed = false;//改变按键状态停止线程
                 keybd_event(key[keyInfo.key], 0, 2, 0);//发送释放指令
                 //keyEvent.Remove(keyInfo.key);//由线程自主决定移除keyevent
@@ -132,7 +133,7 @@ namespace GamepadSimulator
                 int flag = 1;
                 if (keyEvent.ContainsKey(keyInfo.key))
                 {
-                    flag =2 + keyEvent[keyInfo.key];//这里加2是为了后面号判断现在这个按下事件由谁来终止
+                    flag = 2 + keyEvent[keyInfo.key];//这里加2是为了后面号判断现在这个按下事件由谁来终止
                 }
                 else
                 {
@@ -147,33 +148,35 @@ namespace GamepadSimulator
         {
             KeyInfo key;
             int index = str.IndexOf(':');
-             key.key = str.Substring(0, index);
-            key.pressed = str.Substring(index+1, 1) == "t";
+            if (index == -1) {//解析出错
+                key.key = "\0";
+                key.pressed = true;
+                return key; 
+            }
+            key.key = str.Substring(0, index);
+            key.pressed = str.Substring(index + 1, 1) == "t";
             return key;
         }
-        
+
         private static void PressKey(object o)
         {
             //强制转换之后会不会导致引用地址改变
             String k = o.ToString();
-            //保存自己flag
+            //保存自己的flag
             int flag = keyEvent[k];
-
-            try
+            keybd_event(key[k], 0, 0, 0);//先按下
+            Thread.Sleep(300);
+            while (keyEvent[k] == flag)//进入长按状态
             {
-                keybd_event(key[k], 0, 0, 0);//先按下
-                Thread.Sleep(300);
-                while (keyEvent[k] == flag)//进入长按状态
-                {
-                    keybd_event(key[k], 0, 0, 0);//长按状态  
-                    Thread.Sleep(20);
-                }
-                if(flag == flag - 1)//如果flag只相差一的话，说明这个事件是这个线程在处理，并且已经收到了释放的命令
-                {
-                    //keyEvent.Remove(k);
-                }
+                keybd_event(key[k], 0, 0, 0);//长按状态  
+                Thread.Sleep(20);
             }
-            catch (Exception) { }
+            //keybd_event(key[k], 0, 2, 0);
+            if (flag == flag - 1)//如果flag只相差一的话，说明这个事件是这个线程在处理，并且已经收到了释放的命令
+            {
+                keyEvent.Remove(k);
+            }
+
         }
     }
 }

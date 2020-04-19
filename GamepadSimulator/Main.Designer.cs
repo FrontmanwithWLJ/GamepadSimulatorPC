@@ -36,10 +36,10 @@
             this.label2 = new System.Windows.Forms.Label();
             this.SelectedDevice = new System.Windows.Forms.Label();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
-            this.RunLog = new System.Windows.Forms.TextBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.启用ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.禁用ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.RunLog = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -96,7 +96,32 @@
             this.notifyIcon1.ContextMenuStrip = this.contextMenuStrip1;
             this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
             this.notifyIcon1.Text = "游戏手柄模拟器";
+            this.notifyIcon1.Visible = true;
             this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.NotifyIcon1_MouseDoubleClick);
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.启用ToolStripMenuItem,
+            this.禁用ToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(109, 52);
+            // 
+            // 启用ToolStripMenuItem
+            // 
+            this.启用ToolStripMenuItem.Name = "启用ToolStripMenuItem";
+            this.启用ToolStripMenuItem.Size = new System.Drawing.Size(108, 24);
+            this.启用ToolStripMenuItem.Text = "启用";
+            this.启用ToolStripMenuItem.Click += new System.EventHandler(this.启用ToolStripMenuItem_Click);
+            // 
+            // 禁用ToolStripMenuItem
+            // 
+            this.禁用ToolStripMenuItem.Enabled = false;
+            this.禁用ToolStripMenuItem.Name = "禁用ToolStripMenuItem";
+            this.禁用ToolStripMenuItem.Size = new System.Drawing.Size(108, 24);
+            this.禁用ToolStripMenuItem.Text = "禁用";
+            this.禁用ToolStripMenuItem.Click += new System.EventHandler(this.禁用ToolStripMenuItem_Click);
             // 
             // RunLog
             // 
@@ -109,30 +134,6 @@
             this.RunLog.TabIndex = 11;
             this.RunLog.TabStop = false;
             this.RunLog.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.启用ToolStripMenuItem,
-            this.禁用ToolStripMenuItem});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(211, 80);
-            // 
-            // 启用ToolStripMenuItem
-            // 
-            this.启用ToolStripMenuItem.Name = "启用ToolStripMenuItem";
-            this.启用ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
-            this.启用ToolStripMenuItem.Text = "启用";
-            this.启用ToolStripMenuItem.Click += new System.EventHandler(this.启用ToolStripMenuItem_Click);
-            // 
-            // 禁用ToolStripMenuItem
-            // 
-            this.禁用ToolStripMenuItem.Enabled = false;
-            this.禁用ToolStripMenuItem.Name = "禁用ToolStripMenuItem";
-            this.禁用ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
-            this.禁用ToolStripMenuItem.Text = "禁用";
-            this.禁用ToolStripMenuItem.Click += new System.EventHandler(this.禁用ToolStripMenuItem_Click);
             // 
             // MainForm
             // 

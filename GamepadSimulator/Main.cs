@@ -22,6 +22,8 @@ namespace GamepadSimulator
         private bool running = false;
         //监听线程
         private Thread listenThread = null;
+        //标记是否结束程序
+        private bool quit = false;
 
         public MainForm()
         {
@@ -35,7 +37,7 @@ namespace GamepadSimulator
             bluetoothListener.Start();
             RunLog.Text = "等待客户端发送连接请求";
             //开启监听线程
-            listenThread = new Thread(ServerThread);
+            listenThread = new Thread(new ThreadStart(ServerThread));
             listenThread.Start();
         }
 
@@ -44,10 +46,14 @@ namespace GamepadSimulator
             //此服务同一时间只接受一个客户端的请求 1对1
             NetworkStream stream;
             byte[] received;
-            while (!ClientConnected)
+            while (!ClientConnected&&!quit)
             {
                 received = new byte[200];
-                conn = bluetoothListener.AcceptBluetoothClient();//等待客户端连接
+                try
+                {
+                    conn = bluetoothListener.AcceptBluetoothClient();//等待客户端连接
+                }
+                catch (Exception) { }
                 stream = conn.GetStream();
                 Msg("客户端上线");
                 DeviceInfo("未知");
@@ -56,7 +62,7 @@ namespace GamepadSimulator
                 String tmp = Encoding.UTF8.GetString(received);
                 String str = "GamePadAndroid";
                 tmp = tmp.Substring(0, 14);
-                Msg(tmp);
+                //Msg(tmp);
                 if (tmp != str)
                 {
                     RunLog.Text = "未收到客户端对接指令或已断开连接";
@@ -73,7 +79,7 @@ namespace GamepadSimulator
                     //stream.Flush();
                     Msg("已连接");
                     ClientConnected = true;
-                    while (true)
+                    while (!quit)
                     {
                         try
                         {
@@ -94,6 +100,21 @@ namespace GamepadSimulator
                         {
                             Msg("客户端断开连接");
                             DeviceInfo("无连接");
+                            new Task(() =>
+                            {
+                                MethodInvoker methodInvoker = new MethodInvoker(() =>
+                                {
+                                    if (WindowState == FormWindowState.Minimized)
+                                    {
+                                        //弹出窗口
+                                        Run();
+                                        WindowState = FormWindowState.Normal;
+                                        this.ShowInTaskbar = true;
+                                    }
+                                });
+                                this.BeginInvoke(methodInvoker);
+                            }).Start();
+                            
                             ClientConnected = false;
                             stream.Close();
                             conn.Close();
@@ -124,7 +145,7 @@ namespace GamepadSimulator
                 //屏蔽启用按钮
                 启用ToolStripMenuItem.Enabled = false;
                 禁用ToolStripMenuItem.Enabled = true;
-                notifyIcon1.ShowBalloonTip(0, "提示", "手柄模拟器已启用", ToolTipIcon.None);
+                //notifyIcon1.ShowBalloonTip(0, "提示", "手柄模拟器已启用", ToolTipIcon.None);
             }
             else
             {
@@ -134,7 +155,7 @@ namespace GamepadSimulator
                 //屏蔽禁用按钮
                 启用ToolStripMenuItem.Enabled = true;
                 禁用ToolStripMenuItem.Enabled = false;
-                notifyIcon1.ShowBalloonTip(0, "提示", "手柄模拟器已禁用", ToolTipIcon.None);
+                //notifyIcon1.ShowBalloonTip(0, "提示", "手柄模拟器已禁用", ToolTipIcon.None);
             }
         }
 
@@ -142,6 +163,7 @@ namespace GamepadSimulator
         { 
             int WM_SYSCOMMAND = 0x112;
             int SC_MINIMIZE = 0xF020;
+            int SC_CLOSE = 0xF060;
             if (m.Msg == WM_SYSCOMMAND)
             {
                 if (m.WParam.ToInt32() == SC_MINIMIZE) //是否点击最小化
@@ -150,9 +172,21 @@ namespace GamepadSimulator
                     //this.Visible = false; //隐藏窗体
                     WindowState = FormWindowState.Minimized;
                     this.ShowInTaskbar = false;
-                    notifyIcon1.Visible = true;
+                    //notifyIcon1.Visible = true;
                     notifyIcon1.ShowBalloonTip(0, "提示", "进入托盘模式运行", ToolTipIcon.None);
                     return;
+                }
+                //关闭窗口
+                if (m.WParam.ToInt32() == SC_CLOSE)
+                {
+                    quit = true;
+                    bluetoothListener.Stop();
+                    try
+                    {
+                        conn.Close();
+                    }
+                    catch (Exception) { }
+                    //listenThread.Abort();
                 }
             }
             //调用父类的方法
