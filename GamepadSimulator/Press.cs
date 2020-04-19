@@ -132,8 +132,10 @@ namespace GamepadSimulator
                 //为每个线程设立不同的flag   
                 int flag = 1;
                 if (keyEvent.ContainsKey(keyInfo.key))
+     
                 {
-                    flag = 2 + keyEvent[keyInfo.key];//这里加2是为了后面号判断现在这个按下事件由谁来终止
+                    keyEvent[keyInfo.key] += 2;//这里加2是为了后面号判断现在这个按下事件由谁来终止
+
                 }
                 else
                 {
@@ -160,7 +162,7 @@ namespace GamepadSimulator
 
         private static void PressKey(object o)
         {
-            //强制转换之后会不会导致引用地址改变
+            //强制转换之后会导致引用地址改变，所以选择传入string
             String k = o.ToString();
             //保存自己的flag
             int flag = keyEvent[k];
@@ -174,7 +176,7 @@ namespace GamepadSimulator
             //keybd_event(key[k], 0, 2, 0);
             if (flag == flag - 1)//如果flag只相差一的话，说明这个事件是这个线程在处理，并且已经收到了释放的命令
             {
-                keyEvent.Remove(k);
+                keyEvent[k] = 0;
             }
 
         }

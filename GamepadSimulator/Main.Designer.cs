@@ -40,6 +40,7 @@
             this.启用ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.禁用ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RunLog = new System.Windows.Forms.TextBox();
+            this.退出ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -104,14 +105,15 @@
             this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.启用ToolStripMenuItem,
-            this.禁用ToolStripMenuItem});
+            this.禁用ToolStripMenuItem,
+            this.退出ToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(109, 52);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(211, 104);
             // 
             // 启用ToolStripMenuItem
             // 
             this.启用ToolStripMenuItem.Name = "启用ToolStripMenuItem";
-            this.启用ToolStripMenuItem.Size = new System.Drawing.Size(108, 24);
+            this.启用ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
             this.启用ToolStripMenuItem.Text = "启用";
             this.启用ToolStripMenuItem.Click += new System.EventHandler(this.启用ToolStripMenuItem_Click);
             // 
@@ -119,7 +121,7 @@
             // 
             this.禁用ToolStripMenuItem.Enabled = false;
             this.禁用ToolStripMenuItem.Name = "禁用ToolStripMenuItem";
-            this.禁用ToolStripMenuItem.Size = new System.Drawing.Size(108, 24);
+            this.禁用ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
             this.禁用ToolStripMenuItem.Text = "禁用";
             this.禁用ToolStripMenuItem.Click += new System.EventHandler(this.禁用ToolStripMenuItem_Click);
             // 
@@ -134,6 +136,13 @@
             this.RunLog.TabIndex = 11;
             this.RunLog.TabStop = false;
             this.RunLog.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // 退出ToolStripMenuItem
+            // 
+            this.退出ToolStripMenuItem.Name = "退出ToolStripMenuItem";
+            this.退出ToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
+            this.退出ToolStripMenuItem.Text = "退出";
+            this.退出ToolStripMenuItem.Click += new System.EventHandler(this.退出ToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -169,5 +178,6 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem 启用ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 禁用ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 退出ToolStripMenuItem;
     }
 }

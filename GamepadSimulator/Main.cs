@@ -244,5 +244,10 @@ namespace GamepadSimulator
         {
             Run();
         }
+
+        private void 退出ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
     }
 }
