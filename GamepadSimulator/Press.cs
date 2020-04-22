@@ -92,7 +92,7 @@ namespace GamepadSimulator
         }
 
         //用来存储每个键操作线程
-        private static readonly Dictionary<String, int> keyEvent = new Dictionary<string, int>();
+        private static readonly Dictionary<String, Thread> keyEvent = new Dictionary<string, Thread>();
 
         [DllImport("user32.dll", EntryPoint = "keybd_event")]
         public static extern void keybd_event(
@@ -102,15 +102,6 @@ namespace GamepadSimulator
                 int dwExtraInfo //这里是整数类型 一般情况下设成为 0
             );
 
-        /* //获取目前持有焦点的窗口句柄
-         [DllImport("user32.dll")]
-         public static extern long GetFocus();
-
-         //向指定窗口发送消息
-         [DllImport("user32.dll")]
-         public static extern long SendMessage(long hwnd, long wMsg, long wPraram, object lParam);
- */
-
         //private static List<String> list = new List<string>();
         /**
          * args key:true 按下此键 false 释放 _为终止符也为间隔符
@@ -119,23 +110,23 @@ namespace GamepadSimulator
         public static void Run(String args)
         {
             //list.Add(args);
-            String str = args;
-            List<KeyInfo> list1 = GetKey(str);
+            List<KeyInfo> list1 = GetKey(args);
             foreach (KeyInfo keyInfo in list1)
             {
                 //list.Add("list count = "+list1.Count() +"  "+ keyInfo.key+":"+keyInfo.pressed);
-                if (keyInfo.key == "\0") return;//解析出错
                 if (!keyInfo.pressed)//如果是释放按键的指令则直接执行
                 {
                     //keyEvent[keyInfo.key]--;//减1,通知线程结束
                     //info.pressed = false;//改变按键状态停止线程
+                    keyEvent[keyInfo.key].Interrupt();
+                    keyEvent[keyInfo.key].Abort();
                     keybd_event(key[keyInfo.key], 0, 2, 0);//发送释放指令
                     keyEvent.Remove(keyInfo.key);//直接移除keyevent
                 }
                 else//按下则写入字典，创建线程
                 {
-                    //为每个线程设立不同的flag   
-                    int flag = 2;
+                    //为每个线程设立不同的flag,用当前系统时间来作为标志   
+                    long flag = GetTime();
                     /**
                     if (keyEvent.ContainsKey(keyInfo.key))
                     {
@@ -148,8 +139,21 @@ namespace GamepadSimulator
                         t.Start(keyInfo.key);
                     }*/
 
-                    keyEvent.Add(keyInfo.key, flag);
-                    Thread t = new Thread(new ParameterizedThreadStart(PressKey));
+                    Thread t = new Thread(new ParameterizedThreadStart(PressKey))
+                    {
+                        IsBackground = true//后台线程
+                    };
+                    if (keyEvent.ContainsKey(keyInfo.key))
+                    {
+                       /* keybd_event(key[keyInfo.key], 0, 2, 0);//发送释放指令
+                        keyEvent[keyInfo.key].Abort();//终止原来的线程
+                        keyEvent[keyInfo.key] = t;//修改值*/
+                    }
+                    else
+                    {
+                        //keyEvent.Add(keyInfo.key, t);
+                    }
+                    keyEvent.Add(keyInfo.key, t);
                     t.Start(keyInfo.key);
                 }
             }
@@ -185,7 +189,8 @@ namespace GamepadSimulator
             //keybd_event(key[k], 0, 0, 0);//先按下
             int count = 0;
             //Thread.Sleep(300);
-            while (keyEvent.ContainsKey(k) && MainForm.ClientConnected)
+            //标致如果改变直接结束线程
+            while (keyEvent.ContainsKey(k) && MainForm.ClientConnected && MainForm.running)
             {
                 //int t = keyEvent[k];
                 /**
@@ -204,7 +209,13 @@ namespace GamepadSimulator
                 }
                 if (count <= 14)
                     count++;
-                Thread.Sleep(20);
+                try
+                {
+                    Thread.Sleep(20);
+                }catch (ThreadInterruptedException)
+                {
+                    break;
+                }
             }
             //keyEvent.Remove(k);
 
@@ -213,6 +224,14 @@ namespace GamepadSimulator
             //{
             //}
 
+        }
+
+        private static long GetTime()
+        {
+            long currentTicks = DateTime.Now.Ticks;
+            DateTime dtFrom = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            long currentMillis = (currentTicks - dtFrom.Ticks) / 10000;
+            return currentMillis;
         }
     }
 }

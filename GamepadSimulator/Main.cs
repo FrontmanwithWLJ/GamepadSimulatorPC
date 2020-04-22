@@ -20,11 +20,11 @@ namespace GamepadSimulator
         public static bool ClientConnected = false;
         //用于托盘显示
         private readonly NotifyIcon notify = new NotifyIcon();
-        private bool running = false;
+        public static bool running = false;
         //监听线程
         private Thread listenThread = null;
         //标记是否结束程序
-        private bool quit = false;
+        private readonly bool quit = false;
 
         public MainForm()
         {
@@ -102,7 +102,7 @@ namespace GamepadSimulator
                             if(t == "\0") throw new IOException("client disconnect");
                             rec.TrimEnd('\0');
                             //todo 这里执行按键操作，后期用队列实现
-                            if (running && t != "_")
+                            if (t != "_" && running)
                                 Press.Run(rec);
                             Msg(rec);
                         }
@@ -144,7 +144,6 @@ namespace GamepadSimulator
         {
             if (!running)
             {
-                
                 running = true;
                 RunSimulator.Text = "禁用";
                 if (!ClientConnected)
