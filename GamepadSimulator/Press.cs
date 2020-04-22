@@ -17,6 +17,7 @@ namespace GamepadSimulator
             public String key;
             public bool pressed;
         }
+        //记录键值
         private static readonly Dictionary<string, byte> key = new Dictionary<string, byte>();
         public static void Init()
         {
@@ -93,8 +94,6 @@ namespace GamepadSimulator
         //用来存储每个键操作线程
         private static readonly Dictionary<String, int> keyEvent = new Dictionary<string, int>();
 
-
-
         [DllImport("user32.dll", EntryPoint = "keybd_event")]
         public static extern void keybd_event(
                 int bVk,       //虚拟键值
@@ -103,81 +102,116 @@ namespace GamepadSimulator
                 int dwExtraInfo //这里是整数类型 一般情况下设成为 0
             );
 
-        //获取目前持有焦点的窗口句柄
-        [DllImport("user32.dll")]
-        public static extern long GetFocus();
+        /* //获取目前持有焦点的窗口句柄
+         [DllImport("user32.dll")]
+         public static extern long GetFocus();
 
-        //向指定窗口发送消息
-        [DllImport("user32.dll")]
-        public static extern long SendMessage(long hwnd, long wMsg, long wPraram, object lParam);
+         //向指定窗口发送消息
+         [DllImport("user32.dll")]
+         public static extern long SendMessage(long hwnd, long wMsg, long wPraram, object lParam);
+ */
 
-
+        //private static List<String> list = new List<string>();
         /**
-         * args key:true 按下此键 false 释放
+         * args key:true 按下此键 false 释放 _为终止符也为间隔符
+         * eg. enter:true_enter:false_
          */
-        public static void Run(object args)
+        public static void Run(String args)
         {
-            String str = args.ToString();
-            KeyInfo keyInfo = GetKey(str);
-            if (keyInfo.key == "\0") return;//解析出错
-            if (!keyInfo.pressed)//如果是释放按键的指令则直接执行
+            //list.Add(args);
+            String str = args;
+            List<KeyInfo> list1 = GetKey(str);
+            foreach (KeyInfo keyInfo in list1)
             {
-                keyEvent[keyInfo.key]--;//减1,通知线程结束
-                //info.pressed = false;//改变按键状态停止线程
-                keybd_event(key[keyInfo.key], 0, 2, 0);//发送释放指令
-                //keyEvent.Remove(keyInfo.key);//由线程自主决定移除keyevent
-            }
-            else//按下则写入字典，创建线程
-            {
-                //为每个线程设立不同的flag   
-                int flag = 1;
-                if (keyEvent.ContainsKey(keyInfo.key))
-     
+                //list.Add("list count = "+list1.Count() +"  "+ keyInfo.key+":"+keyInfo.pressed);
+                if (keyInfo.key == "\0") return;//解析出错
+                if (!keyInfo.pressed)//如果是释放按键的指令则直接执行
                 {
-                    keyEvent[keyInfo.key] += 2;//这里加2是为了后面号判断现在这个按下事件由谁来终止
+                    //keyEvent[keyInfo.key]--;//减1,通知线程结束
+                    //info.pressed = false;//改变按键状态停止线程
+                    keybd_event(key[keyInfo.key], 0, 2, 0);//发送释放指令
+                    keyEvent.Remove(keyInfo.key);//直接移除keyevent
+                }
+                else//按下则写入字典，创建线程
+                {
+                    //为每个线程设立不同的flag   
+                    int flag = 2;
+                    /**
+                    if (keyEvent.ContainsKey(keyInfo.key))
+                    {
+                        keyEvent[keyInfo.key] += 2;//这里加2是为了后面号判断现在这个按下事件由谁来终止
+                    }
+                    else
+                    {
+                        keyEvent.Add(keyInfo.key, flag);
+                        Thread t = new Thread(new ParameterizedThreadStart(PressKey));
+                        t.Start(keyInfo.key);
+                    }*/
 
-                }
-                else
-                {
                     keyEvent.Add(keyInfo.key, flag);
+                    Thread t = new Thread(new ParameterizedThreadStart(PressKey));
+                    t.Start(keyInfo.key);
                 }
-                Thread t = new Thread(new ParameterizedThreadStart(PressKey));
-                t.Start(keyInfo.key);
             }
         }
 
-        private static KeyInfo GetKey(String str)
+        private static List<KeyInfo> GetKey(String str)
         {
-            KeyInfo key;
-            int index = str.IndexOf(':');
-            if (index == -1) {//解析出错
-                key.key = "\0";
-                key.pressed = true;
-                return key; 
+            String[] array = str.Split('_');
+            List<KeyInfo> keys = new List<KeyInfo>();
+            foreach(String tmp in array)
+            {
+                KeyInfo key;
+                int index = tmp.IndexOf(':');
+                //list.Add(tmp+index);
+                if (index != -1)
+                {
+                    key.key = tmp.Substring(0, index);
+                    key.pressed = tmp.Substring(index + 1, 1) == "t";
+                    keys.Add(key);
+                }
             }
-            key.key = str.Substring(0, index);
-            key.pressed = str.Substring(index + 1, 1) == "t";
-            return key;
+            return keys;
         }
 
         private static void PressKey(object o)
         {
             //强制转换之后会导致引用地址改变，所以选择传入string
             String k = o.ToString();
-            //保存自己的flag
-            int flag = keyEvent[k];
-            keybd_event(key[k], 0, 0, 0);//先按下
-            Thread.Sleep(300);
-            while (keyEvent[k] == flag)//进入长按状态
+            //保存自己的flag、
+            /*int flag = 2;
+            if(keyEvent.ContainsKey(k))
+               flag = keyEvent[k];*/
+            //keybd_event(key[k], 0, 0, 0);//先按下
+            int count = 0;
+            //Thread.Sleep(300);
+            while (keyEvent.ContainsKey(k) && MainForm.ClientConnected)
             {
-                keybd_event(key[k], 0, 0, 0);//长按状态  
+                //int t = keyEvent[k];
+                /**
+                if (t > flag)
+                {
+                    count = 0;
+                    flag = t;
+                }
+                else if (t < flag)
+                {
+                    break;
+                }*/
+                if (count > 14 || count == 0)
+                {
+                    keybd_event(key[k], 0, 0, 0);//长按状态
+                }
+                if (count <= 14)
+                    count++;
                 Thread.Sleep(20);
             }
+            //keyEvent.Remove(k);
+
             //keybd_event(key[k], 0, 2, 0);
-            if (flag == flag - 1)//如果flag只相差一的话，说明这个事件是这个线程在处理，并且已经收到了释放的命令
-            {
-                keyEvent[k] = 0;
-            }
+            //if (keyEvent.ContainsKey(k) && keyEvent[k] == flag - 1)//如果flag只相差一的话，说明这个事件是这个线程在处理，并且已经收到了释放的命令
+            //{
+            //}
 
         }
     }

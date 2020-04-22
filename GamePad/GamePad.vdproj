@@ -40,12 +40,6 @@
         "Entry"
         {
         "MsmKey" = "8:_0B6C6115E93C231195253F94D73734BA"
-        "OwnerKey" = "8:_187640DD7942C03D932BF8CC3B69AB1F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_0B6C6115E93C231195253F94D73734BA"
         "OwnerKey" = "8:_5CB426CC92374E0783A6F50D19386315"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -93,12 +87,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_187640DD7942C03D932BF8CC3B69AB1F"
-        "OwnerKey" = "8:_5CB426CC92374E0783A6F50D19386315"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_1935AAE2E36B091EC045DB11AA2E709C"
         "OwnerKey" = "8:_5CB426CC92374E0783A6F50D19386315"
         "MsmSig" = "8:_UNDEFINED"
@@ -119,12 +107,6 @@
         {
         "MsmKey" = "8:_2453C4AFA568EDB0CCA76558AFE4546E"
         "OwnerKey" = "8:_5CB426CC92374E0783A6F50D19386315"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_2453C4AFA568EDB0CCA76558AFE4546E"
-        "OwnerKey" = "8:_187640DD7942C03D932BF8CC3B69AB1F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -333,12 +315,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9E4A45F4137AC78220420323EA8EC343"
-        "OwnerKey" = "8:_187640DD7942C03D932BF8CC3B69AB1F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_A28F00EE9EAF8DD89EC782215B21E92F"
         "OwnerKey" = "8:_5CB426CC92374E0783A6F50D19386315"
         "MsmSig" = "8:_UNDEFINED"
@@ -353,12 +329,6 @@
         {
         "MsmKey" = "8:_AD07E82938C0B17B73662DE9E9473ACE"
         "OwnerKey" = "8:_5CB426CC92374E0783A6F50D19386315"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B0A5C220043A65B36F72A47FC653A06E"
-        "OwnerKey" = "8:_187640DD7942C03D932BF8CC3B69AB1F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -497,12 +467,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_17B8E89E6999B804D510FD1083BD183D"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_187640DD7942C03D932BF8CC3B69AB1F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1265,37 +1229,6 @@
                     }
                 }
             "SourcePath" = "8:InTheHand.Devices.Bluetooth.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_ED78ABF47245484EBA223903CF05A6FC"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_187640DD7942C03D932BF8CC3B69AB1F"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Network, Version=6.1.4.20, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_187640DD7942C03D932BF8CC3B69AB1F"
-                    {
-                    "Name" = "8:Network.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:Network.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_ED78ABF47245484EBA223903CF05A6FC"
@@ -3137,7 +3070,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:游戏手柄模拟器"
         "ProductCode" = "8:{967BF27C-3A5E-48AA-AD55-845F5587D7BB}"
-        "PackageCode" = "8:{16AD2AD4-2852-422D-BC85-CF355A52612D}"
+        "PackageCode" = "8:{D7A579D8-6E3F-413C-8848-41BF5AA9EC6B}"
         "UpgradeCode" = "8:{8070A1D6-625A-41C1-8DA0-336284ECE50C}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
