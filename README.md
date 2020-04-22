@@ -1,4 +1,4 @@
-# GamepadSimulatorPC
+# GamepadSimulatorPC （暂停维护）
 # 游戏手柄模拟器的PC端
 ***
 ## 实现原理：
