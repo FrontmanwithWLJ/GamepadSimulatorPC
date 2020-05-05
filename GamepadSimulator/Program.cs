@@ -28,6 +28,7 @@ namespace GamepadSimulator
             Application.SetCompatibleTextRenderingDefault(false);
             Press.Init();
             Application.Run(new MainForm());
+            //Press.destroy();
             //FreeConsole();
         }
     }

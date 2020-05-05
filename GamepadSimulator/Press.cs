@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Threading;
+using System.IO;
 
 
 namespace GamepadSimulator
@@ -19,6 +20,11 @@ namespace GamepadSimulator
         }
         //记录键值
         private static readonly Dictionary<string, byte> key = new Dictionary<string, byte>();
+        private static string DirPath = "Log/";
+        private static string FileName = "Log.txt";
+        private static FileStream fs = null;
+        private static StreamWriter sw = null;
+
         public static void Init()
         {
             key.Add("backspace", 8);
@@ -89,10 +95,36 @@ namespace GamepadSimulator
             key.Add("x", 88);
             key.Add("y", 89);
             key.Add("z", 90);
+            if (!Directory.Exists(DirPath))  //如果不存在就创建file文件夹
+            {
+                Directory.CreateDirectory(DirPath);
+            }
+            //fs = new FileStream(DirPath + FileName, FileMode.OpenOrCreate, FileAccess.Write);
+            /*if (File.Exists(DirPath + FileName))
+            {
+                fs = new FileStream((DirPath + FileName), FileMode.Append, FileAccess.Write);
+            }
+            else
+            {
+                fs = new FileStream((DirPath + FileName), FileMode.CreateNew, FileAccess.Write);
+            }*/
+            //sw = new StreamWriter(fs);
+            //WriteTxtToFile("时间：" + DateTime.Now.ToLongTimeString().Replace(":", ".")+"\n\n");
+            //sw.WriteLine("\n\n时间：" + DateTime.Now.ToLongTimeString().Replace(":", ".")+"\n\n");
+            File.AppendAllText(DirPath + FileName, "\n\n时间：" + DateTime.Now.ToLongTimeString().Replace(":", ".") + "\n\n");
+        }
+
+        public static void destroy()
+        {
+            //sw.Flush();
+            sw.Close();
+            sw.Dispose();
+            fs.Close();
+            fs.Dispose();
         }
 
         //用来存储每个键操作线程
-        private static readonly Dictionary<String, Thread> keyEvent = new Dictionary<string, Thread>();
+        private static readonly Dictionary<String, long> keyEvent = new Dictionary<string, long>();
 
         [DllImport("user32.dll", EntryPoint = "keybd_event")]
         public static extern void keybd_event(
@@ -102,24 +134,26 @@ namespace GamepadSimulator
                 int dwExtraInfo //这里是整数类型 一般情况下设成为 0
             );
 
-        //private static List<String> list = new List<string>();
+        private static List<String> list = new List<string>();
         /**
-         * args key:true 按下此键 false 释放 _为终止符也为间隔符
-         * eg. enter:true_enter:false_
+         * args key:t 按下此键 false 释放 _为终止符也为间隔符
+         * eg. enter:t_enter:f_
          */
-        public static void Run(String args)
+        public static void Run(object o)
         {
+            String args = o.ToString();
+            //WriteTxtToFile(args);
             //list.Add(args);
             List<KeyInfo> list1 = GetKey(args);
             foreach (KeyInfo keyInfo in list1)
             {
+                //WriteTxtToFile(keyInfo.key+keyInfo.pressed);
                 //list.Add("list count = "+list1.Count() +"  "+ keyInfo.key+":"+keyInfo.pressed);
                 if (!keyInfo.pressed)//如果是释放按键的指令则直接执行
                 {
                     //keyEvent[keyInfo.key]--;//减1,通知线程结束
                     //info.pressed = false;//改变按键状态停止线程
-                    keyEvent[keyInfo.key].Interrupt();
-                    keyEvent[keyInfo.key].Abort();
+                    keyEvent[keyInfo.key] = -1;
                     keybd_event(key[keyInfo.key], 0, 2, 0);//发送释放指令
                     keyEvent.Remove(keyInfo.key);//直接移除keyevent
                 }
@@ -139,21 +173,22 @@ namespace GamepadSimulator
                         t.Start(keyInfo.key);
                     }*/
 
+                    keybd_event(key[keyInfo.key], 0, 0, 0);
                     Thread t = new Thread(new ParameterizedThreadStart(PressKey))
                     {
                         IsBackground = true//后台线程
                     };
-                    if (keyEvent.ContainsKey(keyInfo.key))
+                    /*if (keyEvent.ContainsKey(keyInfo.key))
                     {
-                       /* keybd_event(key[keyInfo.key], 0, 2, 0);//发送释放指令
-                        keyEvent[keyInfo.key].Abort();//终止原来的线程
-                        keyEvent[keyInfo.key] = t;//修改值*/
+                        *//* keybd_event(key[keyInfo.key], 0, 2, 0);//发送释放指令
+                         keyEvent[keyInfo.key].Abort();//终止原来的线程
+                         keyEvent[keyInfo.key] = t;//修改值*//*
                     }
                     else
                     {
                         //keyEvent.Add(keyInfo.key, t);
-                    }
-                    keyEvent.Add(keyInfo.key, t);
+                    }*/
+                    keyEvent.Add(keyInfo.key, flag);
                     t.Start(keyInfo.key);
                 }
             }
@@ -203,7 +238,7 @@ namespace GamepadSimulator
                 {
                     break;
                 }*/
-                if (count > 14 || count == 0)
+                if (count > 14)
                 {
                     keybd_event(key[k], 0, 0, 0);//长按状态
                 }
@@ -232,6 +267,11 @@ namespace GamepadSimulator
             DateTime dtFrom = new DateTime(1970, 1, 1, 0, 0, 0, 0);
             long currentMillis = (currentTicks - dtFrom.Ticks) / 10000;
             return currentMillis;
+        }
+
+        public static void WriteTxtToFile(string strs)
+        {
+            File.AppendAllText(DirPath + FileName,strs+"\n" );
         }
     }
 }

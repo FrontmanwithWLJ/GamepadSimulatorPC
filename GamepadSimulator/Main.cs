@@ -25,6 +25,9 @@ namespace GamepadSimulator
         private Thread listenThread = null;
         //标记是否结束程序
         private readonly bool quit = false;
+        //输入流
+        private NetworkStream stream;
+
 
         public MainForm()
         {
@@ -52,9 +55,8 @@ namespace GamepadSimulator
         private void ServerThread()
         {
             //此服务同一时间只接受一个客户端的请求 1对1
-            NetworkStream stream;
             byte[] received;
-            while (!ClientConnected&&!quit)
+            while (!ClientConnected && !quit)
             {
                 received = new byte[200];
                 try
@@ -99,11 +101,15 @@ namespace GamepadSimulator
                             String rec = Encoding.UTF8.GetString(received);
                             String t = rec.Substring(0, 1);
                             //客户端断开连接后会导致在缓冲区一直读空数据"\0"
-                            if(t == "\0") throw new IOException("client disconnect");
+                            if (t == "\0") throw new IOException("client disconnect");
                             rec.TrimEnd('\0');
                             //todo 这里执行按键操作，后期用队列实现
                             if (t != "_" && running)
+                            {
+                                //Thread thread = new Thread(new ParameterizedThreadStart(Press.Run));
+                                //thread.Start(rec);
                                 Press.Run(rec);
+                            }
                             Msg(rec);
                         }
                         catch (IOException)
@@ -125,7 +131,7 @@ namespace GamepadSimulator
                                 });
                                 this.BeginInvoke(methodInvoker);
                             }).Start();
-                            
+
                             stream.Close();
                             conn.Close();
                             break;
@@ -184,7 +190,6 @@ namespace GamepadSimulator
                     WindowState = FormWindowState.Minimized;
                     this.ShowInTaskbar = false;
                     //notifyIcon1.Visible = true;
-                    notifyIcon1.ShowBalloonTip(0, "提示", "进入托盘模式运行", ToolTipIcon.None);
                     return;
                 }
                
@@ -247,6 +252,8 @@ namespace GamepadSimulator
 
         private void 退出ToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            stream.Close();
+            conn.Close();
             System.Environment.Exit(0);
         }
     }
